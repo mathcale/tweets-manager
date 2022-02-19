@@ -1,4 +1,5 @@
-import { app } from 'electron';
+import 'reflect-metadata';
+import { app, nativeTheme } from 'electron';
 import serve from 'electron-serve';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 
@@ -21,16 +22,19 @@ if (isProd) {
   }
 
   const mainWindow = createWindow('main', {
-    width: 1000,
-    height: 600,
+    width: 1280,
+    height: 720,
   });
+
+  mainWindow.setMenuBarVisibility(false);
+  nativeTheme.themeSource = 'dark';
 
   if (isProd) {
     await mainWindow.loadURL('app://./home.html');
   } else {
     const port = process.argv[2];
     await mainWindow.loadURL(`http://localhost:${port}/home`);
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
   }
 })();
 
