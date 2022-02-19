@@ -1,12 +1,15 @@
-appId: com.example.nextron
-productName: My Nextron App
-copyright: Copyright © 2018 Yoshihide Shiono
+appId: me.matheus.tweets-manager
+productName: Tweets Manager
+copyright: Copyright © 2022 Matheus Calegaro
+
 directories:
   output: dist
   buildResources: resources
+
 files:
   - from: .
     filter:
       - package.json
       - app
+
 publish: null
