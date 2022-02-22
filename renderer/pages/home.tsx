@@ -1,16 +1,15 @@
-import React from 'react';
-import Head from 'next/head';
-import { Theme, createStyles } from '@mui/material/styles';
+import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { Theme, styled } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
+import createStyles from '@mui/styles/createStyles';
 import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogActions from '@mui/material/DialogActions';
+import LoadingButton from '@mui/lab/LoadingButton';
 import Typography from '@mui/material/Typography';
+import electron from 'electron';
+import { Box } from '@mui/material';
 
-import Link from '../components/Link';
+const ipcRenderer = electron.ipcRenderer;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -21,47 +20,55 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Home() {
+const Input = styled('input')({
+  display: 'none',
+});
+
+export default function HomePage(): JSX.Element {
   const classes = useStyles({});
-  const [open, setOpen] = React.useState(false);
-  const handleClose = () => setOpen(false);
-  const handleClick = () => setOpen(true);
+  const router = useRouter();
+
+  const [archiveFile, setArchiveFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const onAnalyzeButtonClick = async (): Promise<void | never> => {
+    ipcRenderer.sendSync('archive/analyze', archiveFile.path);
+    router.push('/bad-tweets');
+  };
 
   return (
-    <React.Fragment>
-      <Head>
-        <title>Home - Nextron (with-typescript-material-ui)</title>
-      </Head>
-
+    <>
       {/* @ts-ignore */}
       <div className={classes.root}>
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Super Secret Password</DialogTitle>
-          <DialogContent>
-            <DialogContentText>1-2-3-4-5</DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button color="primary" onClick={handleClose}>
-              OK
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <Typography variant="h4" gutterBottom>
-          Material-UI
-        </Typography>
+        <Typography variant="h4">Tweets Manager</Typography>
+
         <Typography variant="subtitle1" gutterBottom>
-          with Nextron
+          Manage your tweets
         </Typography>
-        <img src="/images/logo.png" />
-        <Typography gutterBottom>
-          <Link href="/next">Go to the next page</Link>
+
+        <Typography>
+          Select your downloaded <pre style={{ display: 'inline-block' }}>.zip</pre> archive
         </Typography>
-        <Button variant="contained" color="primary" onClick={handleClick}>
-          Super Secret Password
-        </Button>
+
+        <Box sx={{ mb: 2 }}>
+          <label htmlFor="contained-button-file">
+            <Input
+              type="file"
+              id="contained-button-file"
+              accept="application/zip"
+              onChange={(e) => setArchiveFile(e.target.files[0])}
+            />
+
+            <Button variant="outlined" color="primary" component="span" disabled={isLoading}>
+              Choose file
+            </Button>
+          </label>
+        </Box>
+
+        <LoadingButton variant="contained" loading={isLoading} onClick={onAnalyzeButtonClick}>
+          Analyze
+        </LoadingButton>
       </div>
-    </React.Fragment>
+    </>
   );
 }
-
-export default Home;
