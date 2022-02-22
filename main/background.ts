@@ -3,7 +3,7 @@ import { app, nativeTheme } from 'electron';
 import serve from 'electron-serve';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 
-import { createWindow } from './helpers';
+import { createWindow, registerIpcChannels } from './helpers';
 
 const isProd: boolean = process.env.NODE_ENV === 'production';
 
@@ -34,10 +34,12 @@ if (isProd) {
   } else {
     const port = process.argv[2];
     await mainWindow.loadURL(`http://localhost:${port}/home`);
-    // mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
   }
 })();
 
 app.on('window-all-closed', () => {
   app.quit();
 });
+
+registerIpcChannels();
