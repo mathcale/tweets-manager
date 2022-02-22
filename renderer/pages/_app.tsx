@@ -22,6 +22,7 @@ export default function MyApp(props: AppProps) {
     <React.Fragment>
       <Head>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
+        <title>Tweets Manager</title>
       </Head>
 
       <ThemeProvider theme={theme}>
