@@ -91,8 +91,8 @@ export default function BadTweetsPage(): JSX.Element {
           {badTweets ? (
             <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
               {badTweets.map((badTweet, i) => (
-                <span key={badTweet.id}>
-                  <ListItem alignItems="flex-start">
+                <>
+                  <ListItem key={i} alignItems="flex-start">
                     <ListItemButton role={undefined} onClick={handleToggle(badTweet.id)} dense>
                       <ListItemIcon>
                         <Checkbox
@@ -109,12 +109,13 @@ export default function BadTweetsPage(): JSX.Element {
                           locale: ptBR,
                         })}
                         secondary={badTweet.fullText}
+                        secondaryTypographyProps={{ style: { wordBreak: 'break-word' } }}
                       />
                     </ListItemButton>
                   </ListItem>
 
                   {i < badTweets.length - 1 && <Divider variant="inset" component="li" />}
-                </span>
+                </>
               ))}
             </List>
           ) : (
