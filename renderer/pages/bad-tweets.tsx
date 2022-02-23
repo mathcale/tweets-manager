@@ -18,6 +18,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
+import { useSnackbar } from 'notistack';
 
 import Link from '../components/Link';
 
@@ -35,6 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function BadTweetsPage(): JSX.Element {
   const classes = useStyles({});
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [badTweets, setBadTweets] = useState(null);
   const [checked, setChecked] = useState([]);
@@ -43,11 +45,15 @@ export default function BadTweetsPage(): JSX.Element {
   useEffect(() => {
     async function load() {
       try {
-        const result = ipcRenderer.sendSync('archive/getBadTweets');
-        console.log({ result });
+        const result = await ipcRenderer.invoke('archive/getBadTweets');
         setBadTweets(result);
       } catch (err) {
         console.error(err);
+
+        enqueueSnackbar(`There was an error while loading your tweets!`, {
+          variant: 'error',
+        });
+
         router.back();
       } finally {
         setIsLoading(false);

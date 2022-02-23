@@ -8,6 +8,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import Typography from '@mui/material/Typography';
 import electron from 'electron';
 import { Box } from '@mui/material';
+import { useSnackbar } from 'notistack';
 
 const ipcRenderer = electron.ipcRenderer;
 
@@ -27,13 +28,23 @@ const Input = styled('input')({
 export default function HomePage(): JSX.Element {
   const classes = useStyles({});
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [archiveFile, setArchiveFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const onAnalyzeButtonClick = async (): Promise<void | never> => {
-    ipcRenderer.sendSync('archive/analyze', archiveFile.path);
-    router.push('/bad-tweets');
+    setIsLoading(true);
+
+    try {
+      await ipcRenderer.invoke('archive/analyze', archiveFile.path);
+      router.push('/bad-tweets');
+    } catch (err) {
+      console.error('[HomePage.onAnalyzeButtonClick]', err.message);
+      enqueueSnackbar(err.message, { variant: 'error' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
