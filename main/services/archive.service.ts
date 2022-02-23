@@ -11,12 +11,16 @@ class ArchiveService {
   private dictionary = [];
   private badTweets: BadTweet[];
 
-  public getBadTweets(event: Electron.IpcMainEvent): void {
-    event.returnValue = this.badTweets;
+  public getBadTweets(): any {
+    return this.badTweets;
   }
 
-  public async analyze(event: Electron.IpcMainEvent, archivePath: string): Promise<any | never> {
+  public async analyze(archivePath: string): Promise<any | never> {
     const archive = await this.parse(archivePath);
+
+    if (this.dictionary.length === 0) {
+      throw new Error('Dictionary not loaded!');
+    }
 
     const badTweets = archive.tweets.all.filter((tweet) =>
       tweet.full_text.match(this.parseDictionaryEntriesToRegex(this.dictionary))
@@ -33,7 +37,8 @@ class ArchiveService {
     }));
 
     this.badTweets = badTweetsJson;
-    event.returnValue = badTweetsJson;
+
+    return badTweetsJson;
   }
 
   private async parse(archivePath: string): Promise<TwitterArchive | never> {
