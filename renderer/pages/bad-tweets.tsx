@@ -9,14 +9,18 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
   Box,
+  Button,
   Checkbox,
   CircularProgress,
   Divider,
+  FormControlLabel,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Slide,
+  Switch,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 
@@ -40,6 +44,8 @@ export default function BadTweetsPage(): JSX.Element {
 
   const [badTweets, setBadTweets] = useState(null);
   const [checked, setChecked] = useState([]);
+  const [isSelectAllChecked, setIsSelectAllChecked] = useState<boolean>(false);
+
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -63,6 +69,14 @@ export default function BadTweetsPage(): JSX.Element {
     load();
   }, []);
 
+  useEffect(() => {
+    if (isSelectAllChecked) {
+      setChecked(badTweets.map((badTweet) => badTweet.id));
+    } else {
+      setChecked([]);
+    }
+  }, [isSelectAllChecked]);
+
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
@@ -76,6 +90,22 @@ export default function BadTweetsPage(): JSX.Element {
     setChecked(newChecked);
   };
 
+  const onSelectAllToggleChange = (e): void => {
+    setIsSelectAllChecked(e.target.checked);
+  };
+
+  const onDeleteButtonPress = async (): Promise<void | never> => {
+    setIsLoading(true);
+
+    try {
+      //
+    } catch (err) {
+      //
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <div className={classes.root}>
@@ -85,43 +115,77 @@ export default function BadTweetsPage(): JSX.Element {
           Found tweets:
         </Typography>
 
-        <Link href="/home">Go back</Link>
+        <Link href="/home" replace>
+          Go back
+        </Link>
 
-        <Box sx={{ p: 5, pt: 2 }}>
+        <Box sx={{ p: 5, pt: 2, pb: checked.length > 0 ? 12 : undefined }}>
           {badTweets ? (
-            <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-              {badTweets.map((badTweet, i) => (
-                <>
-                  <ListItem key={i} alignItems="flex-start">
-                    <ListItemButton role={undefined} onClick={handleToggle(badTweet.id)} dense>
-                      <ListItemIcon>
-                        <Checkbox
-                          edge="start"
-                          checked={checked.indexOf(badTweet.id) !== -1}
-                          tabIndex={-1}
-                          disableRipple
-                          inputProps={{ 'aria-labelledby': `checkbox-list-label-${badTweet.id}` }}
+            <>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isSelectAllChecked}
+                    onChange={onSelectAllToggleChange}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                  />
+                }
+                label="Select all"
+              />
+
+              <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+                {badTweets.map((badTweet, i) => (
+                  <>
+                    <ListItem key={i} alignItems="flex-start">
+                      <ListItemButton role={undefined} onClick={handleToggle(badTweet.id)} dense>
+                        <ListItemIcon>
+                          <Checkbox
+                            edge="start"
+                            checked={checked.indexOf(badTweet.id) !== -1}
+                            tabIndex={-1}
+                            disableRipple
+                            inputProps={{ 'aria-labelledby': `checkbox-list-label-${badTweet.id}` }}
+                          />
+                        </ListItemIcon>
+
+                        <ListItemText
+                          primary={format(
+                            new Date(badTweet.createdAt),
+                            `dd/MM/yyyy 'às' HH:mm:ss`,
+                            {
+                              locale: ptBR,
+                            }
+                          )}
+                          secondary={badTweet.fullText}
+                          secondaryTypographyProps={{ style: { wordBreak: 'break-word' } }}
                         />
-                      </ListItemIcon>
+                      </ListItemButton>
+                    </ListItem>
 
-                      <ListItemText
-                        primary={format(new Date(badTweet.createdAt), `dd/MM/yyyy 'às' HH:mm:ss`, {
-                          locale: ptBR,
-                        })}
-                        secondary={badTweet.fullText}
-                        secondaryTypographyProps={{ style: { wordBreak: 'break-word' } }}
-                      />
-                    </ListItemButton>
-                  </ListItem>
-
-                  {i < badTweets.length - 1 && <Divider variant="inset" component="li" />}
-                </>
-              ))}
-            </List>
+                    {i < badTweets.length - 1 && <Divider variant="inset" component="li" />}
+                  </>
+                ))}
+              </List>
+            </>
           ) : (
             <CircularProgress size={64} disableShrink />
           )}
         </Box>
+
+        <Slide direction="up" in={checked.length > 0} mountOnEnter unmountOnExit>
+          <Box sx={{ position: 'fixed', bottom: 0, width: '100%' }}>
+            <Button
+              fullWidth
+              size="large"
+              color="error"
+              variant="contained"
+              style={{ borderRadius: 0, paddingTop: 15, paddingBottom: 15 }}
+              onClick={onDeleteButtonPress}
+            >
+              Delete {checked.length} tweets
+            </Button>
+          </Box>
+        </Slide>
       </div>
     </>
   );
