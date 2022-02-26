@@ -4,6 +4,7 @@ import { Theme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import createStyles from '@mui/styles/createStyles';
 import Typography from '@mui/material/Typography';
+import LinkIcon from '@mui/icons-material/Link';
 import electron from 'electron';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -14,6 +15,7 @@ import {
   CircularProgress,
   Divider,
   FormControlLabel,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
@@ -27,6 +29,7 @@ import { useSnackbar } from 'notistack';
 import Link from '../components/Link';
 
 const ipcRenderer = electron.ipcRenderer;
+const shell = electron.shell;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -94,6 +97,10 @@ export default function BadTweetsPage(): JSX.Element {
     setIsSelectAllChecked(e.target.checked);
   };
 
+  const onOpenTweetButtonClick = (user: string, tweetId: string): void => {
+    shell.openExternal(`https://twitter.com/${user}/${tweetId}`);
+  };
+
   const onDeleteButtonPress = async (): Promise<void | never> => {
     setIsLoading(true);
 
@@ -136,7 +143,19 @@ export default function BadTweetsPage(): JSX.Element {
               <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
                 {badTweets.map((badTweet, i) => (
                   <>
-                    <ListItem key={i} alignItems="flex-start">
+                    <ListItem
+                      key={i}
+                      alignItems="flex-start"
+                      secondaryAction={
+                        <IconButton
+                          edge="end"
+                          aria-label="comments"
+                          onClick={() => onOpenTweetButtonClick(badTweet.user, badTweet.id)}
+                        >
+                          <LinkIcon />
+                        </IconButton>
+                      }
+                    >
                       <ListItemButton role={undefined} onClick={handleToggle(badTweet.id)} dense>
                         <ListItemIcon>
                           <Checkbox
