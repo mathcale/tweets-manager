@@ -5,6 +5,7 @@ interface BadTweet {
   id: string;
   createdAt: string;
   fullText: string;
+  user: string;
 }
 
 class ArchiveService {
@@ -34,11 +35,12 @@ class ArchiveService {
       id: tweet.id_str,
       createdAt: tweet.created_at,
       fullText: tweet.full_text,
+      user: tweet.user.screen_name,
     }));
 
     this.badTweets = badTweetsJson;
 
-    return badTweetsJson;
+    return this.badTweets;
   }
 
   private async parse(archivePath: string): Promise<TwitterArchive | never> {
