@@ -1,11 +1,14 @@
 import 'reflect-metadata';
-import { app, nativeTheme } from 'electron';
+import electron, { app, nativeTheme } from 'electron';
 import serve from 'electron-serve';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
+import dotenv from 'dotenv';
 
 import { createWindow, registerIpcChannels } from './helpers';
 
 const isProd: boolean = process.env.NODE_ENV === 'production';
+
+dotenv.config({ path: '../.env' });
 
 if (isProd) {
   serve({ directory: 'app' });
@@ -36,10 +39,10 @@ if (isProd) {
     await mainWindow.loadURL(`http://localhost:${port}/home`);
     mainWindow.webContents.openDevTools();
   }
+
+  registerIpcChannels();
 })();
 
 app.on('window-all-closed', () => {
   app.quit();
 });
-
-registerIpcChannels();
