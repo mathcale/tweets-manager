@@ -98,16 +98,18 @@ export default function BadTweetsPage(): JSX.Element {
   };
 
   const onOpenTweetButtonClick = (user: string, tweetId: string): void => {
-    shell.openExternal(`https://twitter.com/${user}/${tweetId}`);
+    shell.openExternal(`https://twitter.com/${user}/status/${tweetId}`);
   };
 
   const onDeleteButtonPress = async (): Promise<void | never> => {
     setIsLoading(true);
 
     try {
-      //
+      const promises = checked.map((tweetId) => ipcRenderer.invoke('tweet/delete', tweetId));
+      await Promise.all(promises);
     } catch (err) {
-      //
+      console.error('[BadTweetsPage.onDeleteButtonPress]', err.message);
+      enqueueSnackbar(err.message, { variant: 'error' });
     } finally {
       setIsLoading(false);
     }

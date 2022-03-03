@@ -1,14 +1,11 @@
 import 'reflect-metadata';
-import electron, { app, nativeTheme } from 'electron';
+import { app, nativeTheme } from 'electron';
 import serve from 'electron-serve';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
-import dotenv from 'dotenv';
 
 import { createWindow, registerIpcChannels } from './helpers';
 
 const isProd: boolean = process.env.NODE_ENV === 'production';
-
-dotenv.config({ path: '../.env' });
 
 if (isProd) {
   serve({ directory: 'app' });
